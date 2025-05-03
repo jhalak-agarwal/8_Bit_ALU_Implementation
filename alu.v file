@@ -1,0 +1,163 @@
+module ALU_8bit (
+    input  wire [7:0] A,        // 8-bit input A
+    input  wire [7:0] B,        // 8-bit input B
+    input  wire [3:0] ALU_Sel,  // 4-bit selector
+    output reg  [9:0] Result    // 10-bit output: {Sign, Carry-out, 8-bit magnitude}
+);
+
+    reg [8:0] temp_result; // 9 bits to hold intermediate result with carry
+    reg sign_bit;          // 1 bit to store sign separately
+
+    always @(*) begin
+        temp_result = 9'd0;
+        sign_bit = 1'b0;
+
+        case (ALU_Sel)
+            4'b0000: temp_result = A + B;                 // Addition
+            4'b0001: temp_result = A - B;                 // Subtraction
+            4'b0010: temp_result = A * B;                 // Multiplication
+            4'b0011: temp_result = (B != 0) ? (A / B) : 9'd0; // Division with zero check
+            4'b0100: temp_result = A & B;                 // AND
+            4'b0101: temp_result = A | B;                 // OR
+            4'b0110: temp_result = ~A;                    // NOT (only A)
+            4'b0111: temp_result = (B != 0) ? (A % B) : 9'd0; // Modulus with zero check
+            4'b1000: temp_result = A ^ B;                 // XOR
+            4'b1001: begin                                // Comparison
+                if (A > B)
+                    temp_result = 9'd1;
+                else if (A == B)
+                    temp_result = 9'd2;
+                else
+                    temp_result = 9'd0;
+            end
+            4'b1010: temp_result = A << 1;                // Logical Left Shift (A * 2)
+            4'b1011: temp_result = A >> 1;                // Logical Right Shift (A / 2)
+            default: temp_result = 9'd0;
+        endcase
+
+        // Determine sign bit: if MSB of result is 1 in subtraction, etc
+        if (ALU_Sel == 4'b0001 && temp_result[8]) begin
+            sign_bit = 1'b1; // Negative result for subtraction
+        end
+        else begin
+            sign_bit = 1'b0;
+        end
+
+        // Set final output
+        Result[7:0] = temp_result[7:0]; // Magnitude (lower 8 bits)
+        Result[8]   = temp_result[8];   // Carry-out (9th bit from operations like add, mul)
+        Result[9]   = sign_bit;         // Sign bit
+    end
+
+endmodule
+
+module ALU_8bit_loader (
+    input wire clk,             // Button press clock for shifting bits
+    input wire rst,             // Reset signal
+    input wire sw_a_bit,        // Bit input for A from SW[0]
+    input wire sw_b_bit,        // Bit input for B from SW[1]
+    output reg [7:0] A,         // 8-bit register for A
+    output reg [7:0] B          // 8-bit register for B
+);
+    reg [2:0] bit_count_A = 3'b000; // Bit counter for A
+    reg [2:0] bit_count_B = 3'b000; // Bit counter for B
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            A <= 8'b00000000;   // Reset A
+            B <= 8'b00000000;   // Reset B
+            bit_count_A <= 3'b000;
+            bit_count_B <= 3'b000;
+        end else begin
+            if (bit_count_A < 8) begin
+                A <= {A[6:0], sw_a_bit};  // Shift in bit to A
+                bit_count_A <= bit_count_A + 1;
+            end
+            if (bit_count_B < 8) begin
+                B <= {B[6:0], sw_b_bit};  // Shift in bit to B
+                bit_count_B <= bit_count_B + 1;
+            end
+        end
+    end
+endmodule
+
+
+
+module ALU_8bit_tb();
+
+    // Testbench signals
+    reg [7:0] A;
+    reg [7:0] B;
+    reg [3:0] ALU_Sel;
+    wire [9:0] Result;
+
+    // Instantiate the ALU module
+    ALU_8bit uut (
+        .A(A),
+        .B(B),
+        .ALU_Sel(ALU_Sel),
+        .Result(Result)
+    );
+
+    initial begin
+        // Initialize Inputs
+        A = 8'd0;
+        B = 8'd0;
+        ALU_Sel = 4'd0;
+       
+        // Wait for global reset
+        #10;
+       
+        // Test Addition
+        A = 8'd15; B = 8'd10; ALU_Sel = 4'b0000; // ADD
+        #20;
+       
+        // Test Subtraction
+        A = 8'd20; B = 8'd25; ALU_Sel = 4'b0001; // SUB
+        #20;
+       
+        // Test Multiplication
+        A = 8'd5; B = 8'd6; ALU_Sel = 4'b0010;   // MUL
+        #20;
+       
+        // Test Division
+        A = 8'd20; B = 8'd5; ALU_Sel = 4'b0011;  // DIV
+        #20;
+       
+        // Test AND
+        A = 8'b11001100; B = 8'b10101010; ALU_Sel = 4'b0100; // AND
+        #20;
+       
+        // Test OR
+        A = 8'b11001100; B = 8'b10101010; ALU_Sel = 4'b0101; // OR
+        #20;
+       
+        // Test NOT
+        A = 8'b11001100; B = 8'b00000000; ALU_Sel = 4'b0110; // NOT A
+        #20;
+       
+        // Test Modulus
+        A = 8'd20; B = 8'd6; ALU_Sel = 4'b0111; // MOD
+        #20;
+       
+        // Test XOR
+        A = 8'b11001100; B = 8'b10101010; ALU_Sel = 4'b1000; // XOR
+        #20;
+       
+        // Test Comparison
+        A = 8'd50; B = 8'd30; ALU_Sel = 4'b1001; // COMPARE A>B
+        #20;
+       
+        // Test Left Shift
+        A = 8'b00001111; B = 8'd0; ALU_Sel = 4'b1010; // SHIFT LEFT
+        #20;
+       
+        // Test Right Shift
+        A = 8'b11110000; B = 8'd0; ALU_Sel = 4'b1011; // SHIFT RIGHT
+        #20;
+       
+        // Finish Simulation
+        $finish;
+    end
+
+endmodule
