@@ -103,6 +103,8 @@ FPGA Board Used: `Xilinx Zedboard Zynq-7000 SoC`
 
 ---
 
+## Outputs
+
 
 
 
