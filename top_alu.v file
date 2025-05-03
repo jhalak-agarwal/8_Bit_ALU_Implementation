@@ -1,0 +1,43 @@
+module top_module (
+    // Inputs from the switches and clock
+    input wire clk,               // Button press clock for shifting bits
+    input wire rst,               // Reset signal
+    input wire sw_a_bit,          // Bit input for A from SW[0]
+    input wire sw_b_bit,          // Bit input for B from SW[1]
+    // ALU selector (assumed to be controlled by external logic or switches)
+    input wire [3:0] ALU_Sel,     // 4-bit ALU operation selector
+    // Outputs to LEDs and external pins
+    output wire [7:0] LEDs,       // Lower 8 bits of Result connected to onboard LEDs
+    output wire Sign_bit,         // Result sign bit to external pin
+    output wire Carry_out         // Result carry-out bit to external pin
+);
+
+    // Internal signals for ALU and ALU loader
+    wire [7:0] A, B;              // 8-bit input signals to ALU
+    wire [9:0] Result;            // 10-bit result from ALU (8-bit magnitude + sign + carry-out)
+
+
+    // Instantiate the ALU loader to load A and B values from switches
+    ALU_8bit_loader alu_loader (
+        .clk(clk),
+        .rst(rst),
+        .sw_a_bit(sw_a_bit),
+        .sw_b_bit(sw_b_bit),
+        .A(A),
+        .B(B)
+    );
+
+    // Instantiate the ALU to perform operations
+    ALU_8bit alu (
+        .A(A),
+        .B(B),
+        .ALU_Sel(ALU_Sel),
+        .Result(Result)
+    );
+
+    // Assign the outputs
+    assign LEDs = Result[7:0];    // Lower 8 bits of Result to onboard LEDs
+    assign Sign_bit = Result[9];  // Sign bit to external pin
+    assign Carry_out = Result[8]; // Carry-out bit to external pin
+
+endmodule
