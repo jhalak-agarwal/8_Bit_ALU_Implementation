@@ -112,7 +112,7 @@ Output generated using [testbench](https://github.com/jhalak-agarwal/8_Bit_ALU_I
 </p>
 
 
-Output generated using [top_module](top_alu.v file) and [constraints](pin_mapping.xdc file)
+Outputs generated using [top_module](https://github.com/jhalak-agarwal/8_Bit_ALU_Implementation/blob/eeb165517af8fc56b18295e131c836e38505d2d4/top_alu.v%20file) and [constraints](https://github.com/jhalak-agarwal/8_Bit_ALU_Implementation/blob/ee04436b145d43ec2e68ceecdaf63ff4a88b0594/pin_mapping.xdc%20file)
 
 <p align = 'center'>
     <img src='Minor-2 Images/FPGA Bitstream Generated.png' width=800 height=450>
