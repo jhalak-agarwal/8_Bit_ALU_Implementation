@@ -66,7 +66,7 @@ FPGA Board Used: `Xilinx Zedboard Zynq-7000 SoC`
 
 + ### Simulation Steps:
     1. Open Xilinx Vivado and create a new project, select the Zedboard.
-    2. Add the `alu.v` and 'top_alu.v` file to the project under design sources.
+    2. Add the `alu.v` and `top_alu.v` file to the project under design sources.
     3. Save the files.
     4. Set `alu_tb.v` file as Top.
     5. Run behavioral simulation to verify the ALU functionality by generating the waveform.
