@@ -105,10 +105,18 @@ FPGA Board Used: `Xilinx Zedboard Zynq-7000 SoC`
 
 ## Outputs
 
+Output generated using [testbench](https://github.com/jhalak-agarwal/8_Bit_ALU_Implementation/blob/ee04436b145d43ec2e68ceecdaf63ff4a88b0594/alu.v%20file#L86)
+
+<p align = 'center'>
+    <img src='Minor-2 Images/Simulation Waveform.png' width=800 height=450>
+</p>
 
 
+Output generated using [top_module](top_alu.v file) and [constraints](pin_mapping.xdc file)
 
-
+<p align = 'center'>
+    <img src='Minor-2 Images/FPGA Bitstream Generated.png' width=800 height=450>
+</p>
 
 
 
