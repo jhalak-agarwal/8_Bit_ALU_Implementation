@@ -10,7 +10,7 @@ FPGA Board Used: `Xilinx Zedboard Zynq-7000 SoC`
 ![Functional_Block_Diagram_ALU](https://github.com/user-attachments/assets/678c6327-ea12-4803-af71-0e76e105d84e)
 
 <p align='center'>
-    <img src='assets/alu_block.PNG' width=500 height=300>
+    <img src='Minor-2 Images/Functional Block Diagram ALU.png' width=500 height=300>
 </p>
 
 + Inputs:
